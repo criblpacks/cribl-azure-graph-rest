@@ -1,0 +1,4 @@
+azure_graph_default_splunk_index:
+  type: any
+  lib: custom
+  value: "'azure'"
