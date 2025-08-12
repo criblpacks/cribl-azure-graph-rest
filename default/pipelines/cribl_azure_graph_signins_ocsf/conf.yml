@@ -6,7 +6,7 @@ functions:
       mode: extract
       type: json
       srcField: _raw
-    description: Parse _raw JSON
+    description: Parse _raw into JSON
   - id: eval
     filter: "true"
     disabled: null
@@ -94,6 +94,37 @@ functions:
           value: "1"
     description: Set user object
     groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: actor
+          value: "{}"
+        - disabled: false
+          name: actor.user
+          value: user
+        - disabled: false
+          name: actor.app_name
+          value: clientAppUsed
+        - disabled: false
+          name: actor.app_uid
+          value: appId
+        - disabled: false
+          name: actor.session
+          value: "{}"
+        - disabled: false
+          name: actor.session.is_mfa
+          value: is_mfa
+        - disabled: false
+          name: actor.session.is_remote
+          value: is_remote
+        - disabled: false
+          name: actor.session.uid
+          value: id
+    groupId: 3f9D5U
+    description: Set actor object
   - id: eval
     filter: "true"
     disabled: null
@@ -248,6 +279,7 @@ functions:
         - raw_data
         - risk_*
         - logon_*
+        - actor*
       remove:
         - "*"
         - _*

@@ -8,13 +8,14 @@ groups:
     name: Outputs
     index: 3
     description: Select the desired output
+    disabled: false
 asyncFuncTimeout: 1000
 functions:
   - id: comment
     filter: "true"
     disabled: null
     conf:
-      comment: Parse and remove unneeded fields from Azure Graph Device logs
+      comment: Parse and remove unneeded fields from Azure Graph Alerts logs
   - id: comment
     filter: "true"
     disabled: null
@@ -24,7 +25,7 @@ functions:
     filter: "true"
     disabled: null
     conf:
-      comment: We want to remove all fields that have the literal value 'null'
+      comment: Remove all fields that have the literal value 'null'
     groupId: VQH9ac
   - id: serde
     filter: "true"
@@ -62,32 +63,19 @@ functions:
       mode: extract
       type: json
       srcField: json_parsed
-      remove: []
     groupId: VQH9ac
-    description: Parse the filtered json_parsed for additional processing
+    description: Parse the filtered JSON field
   - id: eval
     filter: "true"
     disabled: null
     conf:
       remove:
-        - json_parsed
-        - _raw
+        - json_raw
     groupId: VQH9ac
-    description: Remove intermediate fields
-  - id: serde
-    filter: "true"
-    disabled: false
-    conf:
-      mode: extract
-      type: json
-      srcField: extensionAttributes
-      dstField: extensionAttributes
-      fieldFilterExpr: value !== '' && value !== null && value !== 'null'
-    groupId: VQH9ac
-    description: Remove null values for extensionAttributes
+    description: Remove unneeded json_raw field
   - id: comment
     filter: "true"
-    disabled: null
+    disabled: false
     conf:
       comment: Enable to output OCSF (Amazon Security Lake)
     groupId: WK4B9j
@@ -95,12 +83,12 @@ functions:
     filter: "true"
     disabled: false
     conf:
-      processor: cribl_azure_graph_devices_ocsf
+      processor: cribl_azure_graph_alerts_ocsf
     groupId: WK4B9j
-    description: Map to OCSF Device Inventory (5001) Class
+    description: Map to OCSF Detection Finding (2004) Class
   - id: comment
     filter: "true"
-    disabled: null
+    disabled: false
     conf:
       comment: Enable to output to Splunk
     groupId: WK4B9j
@@ -136,8 +124,8 @@ functions:
           value: "index ? index : C.vars.azure_graph_default_splunk_index"
         - disabled: false
           name: sourcetype
-          value: "'azure:aad:device'"
+          value: "'azure:aad:user'"
         - disabled: false
           name: source
-          value: "source ? source : 'cribl-azure-graph-devices-rest'"
+          value: "source ? source : 'cribl-azure-graph-users-rest'"
     groupId: WK4B9j
