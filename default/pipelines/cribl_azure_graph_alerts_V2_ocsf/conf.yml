@@ -1,4 +1,9 @@
 functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Map Azure Graph Alerts V2 data to the Detection Finding (2004) Class
   - id: serde
     filter: "true"
     disabled: null
@@ -6,11 +11,6 @@ functions:
       mode: extract
       type: json
       srcField: _raw
-  - id: comment
-    filter: "true"
-    disabled: null
-    conf:
-      comment: Map Azure Graph Alerts V2 data to the Detection Finding (2004) Class
   - id: eval
     filter: "true"
     disabled: false
@@ -158,6 +158,9 @@ functions:
         - disabled: false
           name: unmapped.threatDisplayName
           value: threatDisplayName
+        - disabled: false
+          name: unmapped.evidence
+          value: evidence
     groupId: c5yBAR
     description: Set unmapped field
   - id: eval

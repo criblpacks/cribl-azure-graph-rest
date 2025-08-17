@@ -1,4 +1,9 @@
 functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Map Azure Graph Security Alerts data to the Authentication (3002) Class
   - id: serde
     filter: "true"
     disabled: null
@@ -290,4 +295,4 @@ streamtags:
 groups:
   3f9D5U:
     name: Set OCSF Authentication fields
-    index: 1
+    index: 2

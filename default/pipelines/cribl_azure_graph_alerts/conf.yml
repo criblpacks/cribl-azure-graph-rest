@@ -67,7 +67,7 @@ functions:
     description: Parse the filtered JSON field
   - id: eval
     filter: "true"
-    disabled: null
+    disabled: true
     conf:
       remove:
         - json_raw
