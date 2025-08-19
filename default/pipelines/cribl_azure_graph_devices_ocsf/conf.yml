@@ -1,0 +1,219 @@
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Map Azure Graph Device data to the Device Inventory (5001) Class
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: activity_id
+          value: "2"
+        - disabled: false
+          name: activity_name
+          value: "'Collect'"
+        - name: category_uid
+          value: "5"
+        - disabled: false
+          name: category_name
+          value: "'Discovery'"
+        - name: class_uid
+          value: "5001"
+        - disabled: false
+          name: class_name
+          value: "'Device Inventory Info'"
+        - name: message
+          value: "'Azure Entra Device Inventory'"
+        - disabled: false
+          name: raw_data
+          value: _raw
+        - name: severity_id
+          value: "1"
+        - disabled: false
+          name: severity
+          value: "'Informational'"
+        - name: status_id
+          value: "1"
+        - name: status
+          value: "'Success'"
+        - name: time
+          value: _time
+        - name: timezone_offset
+          value: "0"
+        - name: type_uid
+          value: "500102"
+        - disabled: false
+          name: type_name
+          value: "'Device Inventory Info: Collect'"
+      keep: []
+      remove: []
+    description: Set OSCF Device Inventory  fields
+    groupId: CGZA2N
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: os_object
+          value: "{}"
+        - disabled: false
+          name: os_object.name
+          value: operatingSystem
+        - disabled: false
+          name: os_object.version
+          value: operatingSystemVersion
+        - disabled: false
+          name: os_object.type_id
+          value: 'operatingSystem.includes("Windows") ? 100 :
+            operatingSystem.includes("Linux") ? 200 :
+            operatingSystem.includes("Mac") ? 300 :
+            operatingSystem.includes("iOS") ||
+            operatingSystem.includes("iPhone") ? 301 :
+            operatingSystem.includes("Android") ? 201 : 0'
+        - disabled: false
+          name: os_object.type
+          value: "operatingSystem.includes(\"Windows\") ? 'Windows' :
+            operatingSystem.includes(\"Linux\") ? 'Linux' :
+            operatingSystem.includes(\"Mac\") ? 'macOS' :
+            operatingSystem.includes(\"iOS\") ||
+            operatingSystem.includes(\"iPhone\") ? 'iOS' :
+            operatingSystem.includes(\"Android\") ? 'Android' : 'Unknown'"
+    groupId: CGZA2N
+    description: Set device OS field
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: device
+          value: "{}"
+        - disabled: false
+          name: device.os
+          value: os_object
+        - name: device.uid
+          value: deviceId
+        - name: device.hostname
+          value: displayName
+        - name: device.vendor_name
+          value: manufacturer
+        - disabled: false
+          name: device.model
+          value: model
+        - name: device.type_id
+          value: 'operatingSystem.includes("Windows") ? 2 :
+            operatingSystem.includes("Linux") ? 1 :
+            operatingSystem.includes("Mac") ? 2 :
+            operatingSystem.includes("iOS") ||
+            operatingSystem.includes("iPhone") ? 5 :
+            operatingSystem.includes("Android") ? 5 : 0'
+        - name: device.type
+          value: 'operatingSystem.includes("Windows") ? "Desktop" :
+            operatingSystem.includes("Linux") ? "Server" :
+            operatingSystem.includes("Mac") ? 2 :
+            operatingSystem.includes("iOS") ||
+            operatingSystem.includes("iPhone") ? "Mobile" :
+            operatingSystem.includes("Android") ? "Mobile" : "Unknown"'
+        - disabled: false
+          name: device.first_seen_time
+          value: registrationDateTime
+        - disabled: false
+          name: device.last_seen_time
+          value: approximateLastSignInDateTime
+        - disabled: false
+          name: device.domain
+          value: machine_domain
+    description: Set device field
+    groupId: CGZA2N
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: metadata
+          value: "{}"
+        - name: metadata.product
+          value: "{}"
+        - name: metadata.product.name
+          value: "'Microsoft Graph API'"
+        - name: metadata.product.vendor_name
+          value: "'Microsoft'"
+        - name: metadata.version
+          value: "'1.4.0'"
+        - name: metadata.tenant_uid
+          value: cid
+    description: Set metadata Device
+    groupId: CGZA2N
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: unmapped
+          value: "{}"
+        - disabled: false
+          name: unmapped.accountEnabled
+          value: accountEnabled
+        - disabled: false
+          name: unmapped. deviceOwnership
+          value: deviceOwnership
+        - disabled: false
+          name: unmapped. enrollmentProfileName
+          value: enrollmentProfileName
+        - disabled: false
+          name: unmapped. enrollmentType
+          value: enrollmentType
+        - disabled: false
+          name: unmapped. isCompliant
+          value: isCompliant
+        - disabled: false
+          name: unmapped.isManaged
+          value: isManaged
+        - disabled: false
+          name: unmapped.isRooted
+          value: isRooted
+        - disabled: false
+          name: unmapped. managementType
+          value: managementType
+        - disabled: false
+          name: unmapped.profileType
+          value: profileType
+        - disabled: false
+          name: unamapped.trustType
+          value: trustType
+    groupId: CGZA2N
+    description: Set unmapped field
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      keep:
+        - unmapped.*
+        - message
+        - status_detail
+        - status_code
+        - time
+        - status_id
+        - status
+        - timezone_offset
+        - device.*
+        - metadata.*
+        - activity_*
+        - raw_data
+        - class*
+        - category*
+        - type*
+        - severity*
+      remove:
+        - "*"
+        - __*
+    description: Drop non-OCSF fields
+streamtags:
+  - cpe
+groups:
+  CGZA2N:
+    name: Set top-level OCSF Device Inventory  fields
+    index: 1

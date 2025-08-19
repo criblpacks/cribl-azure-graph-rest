@@ -1,0 +1,159 @@
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Map Azure Graph API User data to the User Inventory Info (5003) Class
+  - id: serde
+    filter: "true"
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+    description: Parse _raw JSON
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: user
+          value: "{}"
+        - name: user.uid
+          value: id
+        - name: user.name
+          value: userPrincipalName
+        - name: user.type_id
+          value: "1"
+        - name: user.has_mfa
+          value: "false"
+        - disabled: false
+          name: user.email_addr
+          value: mail
+        - disabled: false
+          name: user.full_name
+          value: displayName
+        - disabled: false
+          name: user.account
+          value: "{}"
+        - disabled: false
+          name: user.account.name
+          value: userPrincipalName
+        - disabled: false
+          name: user.account.type_id
+          value: "6"
+        - disabled: false
+          name: user.account.type
+          value: "'Azure AD Account'"
+        - disabled: false
+          name: user.account.uid
+          value: id
+    description: Set User OCSF Object
+    groupId: oFBC4U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: metadata
+          value: "{}"
+        - name: metadata.product
+          value: "{}"
+        - name: metadata.product.name
+          value: "'Microsoft Graph API'"
+        - name: metadata.product.uid
+          value: userPrincipalName
+        - name: metadata.product.vendor_name
+          value: "'Microsoft'"
+        - name: metadata.product.version
+          value: "'v1.0'"
+        - name: metadata.version
+          value: "'1.4.0'"
+    description: Set metadata field
+    groupId: oFBC4U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: unmapped
+          value: "{}"
+        - name: unmapped.businessPhones
+          value: businessPhones
+        - name: unmapped.givenName
+          value: givenName
+        - name: unmapped.jobTitle
+          value: jobTitle
+        - name: unmapped.mobilePhone
+          value: mobilePhone
+        - name: unmapped.officeLocation
+          value: officeLocation
+        - name: unmapped.preferredLanguage
+          value: preferredLanguage
+        - name: unmapped.surname
+          value: surname
+    description: Set unmapped field
+    groupId: oFBC4U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: activity_id
+          value: "2"
+        - name: activity_name
+          value: "'Collect'"
+        - name: category_uid
+          value: "5"
+        - name: class_uid
+          value: "5003"
+        - name: class_name
+          value: "'User Inventory Info'"
+        - name: severity_id
+          value: "1"
+        - name: severity
+          value: "'Informational'"
+        - name: time
+          value: _time
+        - name: type_uid
+          value: class_uid * 100 + activity_id
+        - disabled: false
+          name: raw_data
+          value: _raw
+      keep: []
+      remove: []
+    description: Set remaining OCSF fields
+    groupId: oFBC4U
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      keep:
+        - unmapped.*
+        - message
+        - category_uid
+        - status_detail
+        - status_code
+        - time
+        - status_id
+        - status
+        - observables.*
+        - user.*
+        - timezone_offset
+        - type_uid
+        - metadata.*
+        - activity*
+        - class*
+        - severity*
+        - raw_data
+      remove:
+        - "*"
+        - cribl_pipe
+        - _*
+    description: Drop non-OCSF fields
+streamtags:
+  - cpe
+groups:
+  oFBC4U:
+    name: Set OCSF User Inventory fields
+    index: 2

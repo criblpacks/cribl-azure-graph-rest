@@ -1,0 +1,131 @@
+output: default
+streamtags: []
+groups:
+  VQH9ac:
+    name: Filter 'null' fields and re-serialize
+    index: 2
+  WK4B9j:
+    name: Outputs
+    index: 3
+    description: Select the desired output
+    disabled: false
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Parse and remove unneeded fields from Azure Graph Alerts logs
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: "Author: Cribl Packs Team"
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Remove all fields that have the literal value 'null'
+    groupId: VQH9ac
+  - id: serde
+    filter: "true"
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+      dstField: json_parsed
+      remove:
+        - _raw
+    groupId: VQH9ac
+  - id: code
+    filter: "true"
+    disabled: false
+    conf:
+      maxNumOfIterations: 5000
+      activeLogSampleRate: 1
+      useUniqueLogChannel: true
+      code: |-
+        var obj = __e['json_parsed'];
+        if (obj && typeof obj === 'object') {
+          Object.keys(obj).forEach(function(k){
+            if (obj[k] === null || obj[k]==''){
+              delete obj[k];
+            }
+          });
+        }
+    groupId: VQH9ac
+    description: Only handles top-level JSON fields!
+  - id: serde
+    filter: "true"
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: json_parsed
+    groupId: VQH9ac
+    description: Parse the filtered JSON field
+  - id: eval
+    filter: "true"
+    disabled: true
+    conf:
+      remove:
+        - json_raw
+    groupId: VQH9ac
+    description: Remove unneeded json_raw field
+  - id: comment
+    filter: "true"
+    disabled: false
+    conf:
+      comment: Enable to output OCSF (Amazon Security Lake)
+    groupId: WK4B9j
+  - id: chain
+    filter: "true"
+    disabled: false
+    conf:
+      processor: cribl_azure_graph_alerts_ocsf
+    groupId: WK4B9j
+    description: Map to OCSF Detection Finding (2004) Class
+  - id: comment
+    filter: "true"
+    disabled: false
+    conf:
+      comment: Enable to output to Splunk
+    groupId: WK4B9j
+  - id: serialize
+    filter: "true"
+    disabled: true
+    conf:
+      type: json
+      dstField: _raw
+      fields:
+        - "!cribl_*"
+        - "!_*"
+        - "!host"
+        - "!source"
+        - "*"
+    groupId: WK4B9j
+  - id: eval
+    filter: "true"
+    disabled: true
+    conf:
+      remove:
+        - "*"
+      keep:
+        - cribl_*
+        - _*
+        - host
+        - source
+        - sourcetype
+        - index
+      add:
+        - disabled: false
+          name: index
+          value: "index ? index : C.vars.azure_graph_default_splunk_index"
+        - disabled: false
+          name: sourcetype
+          value: "'azure:aad:user'"
+        - disabled: false
+          name: source
+          value: "source ? source : 'cribl-azure-graph-users-rest'"
+    groupId: WK4B9j

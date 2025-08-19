@@ -1,0 +1,198 @@
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Map Azure Graph Alerts V2 data to the Detection Finding (2004) Class
+  - id: serde
+    filter: "true"
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      add:
+        - name: activity_id
+          value: "status == 'new' ? 1 : status == 'inProgress' ? 2 : status == 'resolved'
+            ? 3 : 0"
+        - disabled: false
+          name: activity_name
+          value: "status == 'new' ? 'Create' : status == 'inProgress' ? 'Update' : status
+            == 'resolved' ? 'Close' : 'Unknown'"
+        - name: category_uid
+          value: "2"
+        - disabled: false
+          name: category_name
+          value: "'Findings'"
+        - name: class_uid
+          value: "2004"
+        - disabled: false
+          name: class_name
+          value: "'Detection Finding'"
+        - name: is_alert
+          value: "classification == 'falsePositive' ? false : severity == 'high' ? true :
+            false"
+        - name: message
+          value: title
+        - name: observables
+          value: "[{name:filename, type_id:7},{name:cmdline, type_id:13}, {name:user_name,
+            type_id:21}, {name:user_principal, type_id:31}]"
+          disabled: true
+        - name: severity_id
+          value: "severity === 'high' ? 4 : severity === 'medium' ? 3 : severity ==='low'
+            ? 2 : severity === 'informational' ? 1 : 0"
+        - disabled: false
+          name: severity
+          value: "severity === 'high' ? 'High' : severity === 'medium' ? 'Medium' :
+            severity ==='low' ? 'Low' : severity === 'informational' ?
+            'Informational' : 'Unknown'"
+        - name: status_id
+          value: "status == 'new' ? 1 : status == 'inProgress' ? 2 : status == 'resolved'
+            ? 4 : 'Unknown'"
+        - name: status_code
+          value: "status == 'new' ? 'New' : status == 'inProgress' ? 'In Progress' :
+            status == 'resolved' ? 'Resolved' : 'Unknown'"
+        - name: time
+          value: _time
+        - name: timezone_offset
+          value: "0"
+        - name: type_uid
+          value: 2004 * 100 + activity_id
+        - disabled: false
+          name: type_name
+          value: "type_uid === 200400 ? 'Detection Finding: Unknown' : type_uid === 200401
+            ? 'Detection Finding: Create' : type_uid === 200402 ? 'Detection
+            Finding: Update' : type_uid === 200403 ? 'Detection Finding: Close'
+            : 'Detection Finding: Other'"
+        - disabled: false
+          name: raw_data
+          value: _raw
+        - name: unmapped
+          value: "[{tactic: tactic, tactic_id: tactic_id, technique: technique}]"
+    description: Set top-level OCSF Detection fields
+    groupId: c5yBAR
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      add:
+        - name: metadata
+          value: "{}"
+        - name: metadata.product
+          value: "{}"
+        - name: metadata.product.name
+          value: productName
+        - name: metadata.product.vendor_name
+          value: "'Microsoft Security Center Alerts'"
+        - name: metadata.product.uid
+          value: "'azure_graph_api'"
+        - name: metadata.product.version
+          value: "1.0"
+        - name: metadata.created_time
+          value: createdDateTime
+        - disabled: false
+          name: metadata.updated_time
+          value: lastUpdateDateTime
+        - name: metadata.version
+          value: "'1.4.0-detection_finding-2004'"
+    description: Set metadata Detection field
+    groupId: c5yBAR
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      add:
+        - name: finding_info
+          value: "{}"
+        - name: finding_info.uid
+          value: incidentId
+        - name: finding_info.desc
+          value: category
+    description: Set finding_info Detection field
+    groupId: c5yBAR
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: unmapped
+          value: "{}"
+        - disabled: false
+          name: unmapped.detectionSource
+          value: detectionSource
+        - disabled: false
+          name: unmapped.serviceSource
+          value: serviceSource
+        - disabled: false
+          name: unmapped.systemTags
+          value: systemTags
+        - disabled: false
+          name: unmapped.mitreTechniques
+          value: mitreTechniques
+        - disabled: false
+          name: unmapped.tenantId
+          value: tenantId
+        - disabled: false
+          name: unmapped.incidentId
+          value: incidentId
+        - disabled: false
+          name: unmapped.incidentWebUrl
+          value: incidentWebUrl
+        - disabled: false
+          name: unmapped.AlertPolicyTitle
+          value: additionalData.AlertPolicyTitle
+        - disabled: false
+          name: unmapped.DlpAlertType
+          value: additionalData.DlpAlertType
+        - disabled: false
+          name: unmapped.description
+          value: description
+        - disabled: false
+          name: unmapped.threatFamilyName
+          value: threatFamilyName
+        - disabled: false
+          name: unmapped.threatDisplayName
+          value: threatDisplayName
+        - disabled: false
+          name: unmapped.evidence
+          value: evidence
+    groupId: c5yBAR
+    description: Set unmapped field
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      keep:
+        - unmapped.*
+        - message
+        - finding_info.*
+        - time
+        - observables.*
+        - timezone_offset
+        - is_alert
+        - type_uid
+        - metadata.*
+        - activity*
+        - severity*
+        - confidence*
+        - raw_data
+        - status_*
+        - device*
+        - resources*
+        - category_*
+        - class_*
+      remove:
+        - "*"
+        - cribl_*
+    description: Drop fields non-OCSF fields
+streamtags:
+  - cpe
+groups:
+  c5yBAR:
+    name: Set OCSF Detection Finding fields
+    index: 2

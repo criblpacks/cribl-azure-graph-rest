@@ -1,0 +1,70 @@
+id: default
+groups: {}
+comments: []
+routes:
+  - id: CL8DIX
+    name: cribl_azure_graph_signins_route
+    final: true
+    disabled: false
+    pipeline: cribl_azure_graph_signins
+    description: Process Azure Graph Signins data
+    enableOutputExpression: false
+    outputExpression: null
+    filter: source.includes('/v1.0/auditLogs/signIns')
+    clones: []
+    output: default
+  - id: J8RjIg
+    name: cribl_azure_graph_devices_route
+    final: true
+    disabled: false
+    pipeline: cribl_azure_graph_devices
+    description: Process Azure Graph Devices data
+    enableOutputExpression: false
+    outputExpression: null
+    filter: source.includes('/v1.0/devices')
+    clones: []
+    output: default
+  - id: 7ykZK4
+    name: cribl_azure_graph_users_route
+    final: true
+    disabled: false
+    pipeline: cribl_azure_graph_users
+    description: Process Azure Graph Users data
+    enableOutputExpression: false
+    outputExpression: null
+    filter: source.includes('/v1.0/users')
+    clones: []
+    output: default
+  - id: Ty5CQP
+    name: cribl_azure_graph_alerts_route
+    final: true
+    disabled: false
+    pipeline: cribl_azure_graph_alerts
+    description: Process Azure Graph Alerts data (v1)
+    enableOutputExpression: false
+    outputExpression: null
+    filter: source.includes('/v1.0/security/alerts')
+    clones: []
+    output: default
+  - id: 3sm2Du
+    name: cribl_azure_graph_alerts_v2_route
+    final: true
+    disabled: false
+    pipeline: cribl_azure_graph_alerts_v2
+    description: Process Azure Graph Alerts data (v2)
+    enableOutputExpression: false
+    outputExpression: null
+    filter: source.includes('/v1.0/security/alerts_v2')
+    clones: []
+    output: default
+  - id: default
+    name: default
+    final: true
+    disabled: false
+    pipeline: main
+    description: ""
+    enableOutputExpression: false
+    outputExpression: null
+    filter: "true"
+    clones: []
+    output: default

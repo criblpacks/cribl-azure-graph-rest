@@ -1,0 +1,298 @@
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: Map Azure Graph Security Alerts data to the Authentication (3002) Class
+  - id: serde
+    filter: "true"
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+    description: Parse _raw into JSON
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: is_mfa
+          value: "status.errorCode == 50097 && (riskLevelDuringSignIn == 'high'
+            ||riskLevelDuringSignIn == 'medium') ? 'false' : 'true'"
+        - name: is_remote
+          value: "true"
+        - name: activity_id
+          value: "1"
+        - disabled: false
+          name: activity_name
+          value: '"Logon"'
+        - name: auth_protocol_id
+          value: "6"
+        - name: auth_protocol
+          value: "'OAUTH 2.0'"
+        - name: category_uid
+          value: "3"
+        - disabled: false
+          name: category_name
+          value: "'Identity & Access Management'"
+        - name: class_uid
+          value: "3002"
+        - disabled: false
+          name: class_name
+          value: "'Authentication'"
+        - disabled: false
+          name: message
+          value: status.additionalDetails
+        - disabled: false
+          name: raw_data
+          value: _raw
+        - name: severity_id
+          value: 'riskLevelDuringSignIn == "high" ? 4 : riskLevelDuringSignIn == "medium"
+            ? 3 : riskLevelDuringSignIn == "low" ? 2 : riskLevelDuringSignIn ==
+            "none" ? 1 : 0'
+        - name: status_id
+          value: "status.errorCode == 0 ? 1 : 2"
+        - name: status
+          value: "status.errorCode == 0  ? 'Success' : 'Failure'"
+        - name: status_code
+          value: status.errorCode
+        - name: status_detail
+          value: status.failureReason
+        - name: service
+          value: "{}"
+        - name: service.name
+          value: appDisplayName
+        - name: service.uid
+          value: appId
+        - name: time
+          value: _time
+        - name: type_uid
+          value: "300201"
+        - disabled: false
+          name: type_name
+          value: "'Authentication: Logon'"
+        - disabled: false
+          name: logon_type_id
+          value: "isInteractive ? 2 : 0"
+        - disabled: false
+          name: logon_type
+          value: "isInteractive ? 'Interactive' : 'Unknown'"
+      keep: []
+      remove: []
+    description: Set top-level OCSF fields
+    groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: user
+          value: "{}"
+        - name: user.uid
+          value: userId
+        - name: user.name
+          value: userPrincipalName
+        - name: user.has_mfa
+          value: is_mfa
+        - name: user.type_id
+          value: "1"
+    description: Set user object
+    groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: actor
+          value: "{}"
+        - disabled: false
+          name: actor.user
+          value: user
+        - disabled: false
+          name: actor.app_name
+          value: clientAppUsed
+        - disabled: false
+          name: actor.app_uid
+          value: appId
+        - disabled: false
+          name: actor.session
+          value: "{}"
+        - disabled: false
+          name: actor.session.is_mfa
+          value: is_mfa
+        - disabled: false
+          name: actor.session.is_remote
+          value: is_remote
+        - disabled: false
+          name: actor.session.uid
+          value: id
+    groupId: 3f9D5U
+    description: Set actor object
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: az_location
+          value: "{}"
+        - disabled: false
+          name: az_location.city
+          value: location.city
+        - disabled: false
+          name: az_location.region
+          value: location.state
+        - disabled: false
+          name: az_location.country
+          value: location.countryOrRegion
+        - disabled: false
+          name: az_location.lat
+          value: location.geoCoordinates.latitude
+        - disabled: false
+          name: az_location.long
+          value: location.geoCoordinates.longitude
+        - disabled: false
+          name: os
+          value: deviceDetail.operatingSystem
+        - name: src_endpoint
+          value: "{}"
+        - disabled: false
+          name: src_endpoint.uid
+          value: deviceDetail.deviceId
+        - disabled: false
+          name: src_endpoint.location
+          value: az_location
+        - disabled: false
+          name: src_endpoint.hostname
+          value: deviceDetail.displayName
+        - name: src_endpoint.ip
+          value: ipAddress
+        - disabled: false
+          name: src_endpoint.os
+          value: os
+        - disabled: false
+          name: src_endpoint.type_id
+          value: "os.includes('Windows') || os.includes('MacOs')? 2 : os.includes('Ios')
+            || os.includes('Android') ? 5 : 0"
+        - disabled: false
+          name: src_endpoint.type
+          value: "os.includes('Windows') || os.includes('MacOs')? 'Desktop' :
+            os.includes('Ios') || os.includes('Android') ? 'Mobile' : 'Unknown'"
+    description: Set src_endpoint object
+    groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: risk_level_id
+          value: "riskLevelDuringSignIn == 'high' ? 3 : riskLevelDuringSignIn == 'medium'
+            ? 2 : riskLevelDuringSignIn == \"low\" ? 1 : 0"
+        - disabled: false
+          name: risk_level
+          value: "riskLevelDuringSignIn == 'high' ? 'High' : riskLevelDuringSignIn ==
+            'medium' ? 'Medium' : riskLevelDuringSignIn == 'low' ? 'Low' :
+            'Info'"
+        - disabled: false
+          name: risk_details
+          value: riskDetail
+    description: Set risk attributes
+    groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: metadata
+          value: "{}"
+        - name: metadata.product
+          value: "{}"
+        - name: metadata.product.name
+          value: "'Microsoft Graph API'"
+        - name: metadata.product.uid
+          value: "'graph.microsoft.com'"
+        - name: metadata.product.vendor_name
+          value: "'Microsoft'"
+        - name: metadata.product.version
+          value: "'v1.0'"
+        - name: metadata.version
+          value: "'1.4.0'"
+        - name: metadata.original_time
+          value: createdDateTime
+        - name: metadata.log_name
+          value: source
+    description: Set metadata object
+    groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: unmapped
+          value: "{}"
+        - name: unmapped.id
+          value: id
+        - name: unmapped.correlationId
+          value: correlationId
+        - name: unmapped.conditionalAccessStatus
+          value: conditionalAccessStatus
+        - name: unmapped.riskDetail
+          value: riskDetail
+        - name: unmapped.riskLevelAggregated
+          value: riskLevelAggregated
+        - name: unmapped.riskState
+          value: riskState
+        - name: unmapped.riskEventTypes
+          value: riskEventTypes
+        - name: unmapped.riskEventTypes_v2
+          value: riskEventTypes_v2
+        - name: unmapped.resourceDisplayName
+          value: resourceDisplayName
+        - name: unmapped.resourceId
+          value: resourceId
+        - name: unmapped.appliedConditionalAccessPolicies
+          value: appliedConditionalAccessPolicies
+    description: Set unmapped object
+    groupId: 3f9D5U
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      keep:
+        - unmapped.*
+        - message
+        - is_remote
+        - status_detail
+        - status_code
+        - time
+        - is_mfa
+        - user.*
+        - service.*
+        - auth_protocol_id
+        - auth_protocol
+        - severity_id
+        - type_uid
+        - src_endpoint.*
+        - metadata.*
+        - category*
+        - activity*
+        - class*
+        - status*
+        - raw_data
+        - risk_*
+        - logon_*
+        - actor*
+      remove:
+        - "*"
+        - _*
+        - cribl_*
+    description: Drop non-OCSF fields
+streamtags:
+  - cpe
+groups:
+  3f9D5U:
+    name: Set OCSF Authentication fields
+    index: 2
