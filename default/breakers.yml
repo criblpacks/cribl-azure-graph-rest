@@ -1,0 +1,41 @@
+Azure Graph API Ruleset:
+  lib: custom
+  minRawLength: 256
+  rules:
+    - condition: _raw.includes('@odata.context') &&
+        !_raw.includes('microsoft.graph.security.alert')
+      type: json_array
+      timestampAnchorRegex: /lastModifiedDateTime/
+      timestamp:
+        type: auto
+        length: 150
+      timestampTimezone: local
+      timestampEarliest: -420weeks
+      timestampLatest: +1week
+      maxEventBytes: 134217728
+      disabled: false
+      parserEnabled: false
+      shouldUseDataRaw: false
+      jsonExtractAll: false
+      eventBreakerRegex: /[\n\r]+(?!\s)/
+      name: Azure Graph API
+      jsonArrayField: value
+    - condition: _raw.includes('@odata.context') &&
+        _raw.includes('microsoft.graph.security.alert')
+      type: json_array
+      timestampAnchorRegex: /lastUpdateDateTime/
+      timestamp:
+        type: auto
+        length: 150
+      timestampTimezone: local
+      timestampEarliest: -420weeks
+      timestampLatest: +1week
+      maxEventBytes: 134217728
+      disabled: false
+      parserEnabled: false
+      shouldUseDataRaw: false
+      jsonExtractAll: false
+      eventBreakerRegex: /[\n\r]+(?!\s)/
+      name: Azure Graph API - Alerts V2
+      jsonArrayField: value
+  description: Event breaking rule for the Azure Graph API

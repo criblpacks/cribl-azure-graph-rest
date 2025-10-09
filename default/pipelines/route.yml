@@ -10,7 +10,7 @@ routes:
     description: Process Azure Graph Signins data
     enableOutputExpression: false
     outputExpression: null
-    filter: source.includes('/v1.0/auditLogs/signIns')
+    filter: __packsource == 'cribl-microsoft-graph-rest-io.microsoft-graph-signins'
     clones: []
     output: default
   - id: J8RjIg
@@ -21,7 +21,7 @@ routes:
     description: Process Azure Graph Devices data
     enableOutputExpression: false
     outputExpression: null
-    filter: source.includes('/v1.0/devices')
+    filter: __packsource == 'cribl-microsoft-graph-rest-io.microsoft-graph-devices'
     clones: []
     output: default
   - id: 7ykZK4
@@ -32,7 +32,7 @@ routes:
     description: Process Azure Graph Users data
     enableOutputExpression: false
     outputExpression: null
-    filter: source.includes('/v1.0/users')
+    filter: __packsource == 'cribl-microsoft-graph-rest-io.microsoft-graph-users'
     clones: []
     output: default
   - id: Ty5CQP
@@ -43,7 +43,8 @@ routes:
     description: Process Azure Graph Alerts data (v1)
     enableOutputExpression: false
     outputExpression: null
-    filter: source.includes('/v1.0/security/alerts')
+    filter: __packsource ==
+      'cribl-microsoft-graph-rest-io.microsoft-graph-security-alerts'
     clones: []
     output: default
   - id: 3sm2Du
@@ -54,7 +55,8 @@ routes:
     description: Process Azure Graph Alerts data (v2)
     enableOutputExpression: false
     outputExpression: null
-    filter: source.includes('/v1.0/security/alerts_v2')
+    filter: __packsource ==
+      'cribl-microsoft-graph-rest-io.microsoft-graph-security-alerts-v2'
     clones: []
     output: default
   - id: default

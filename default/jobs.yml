@@ -1,0 +1,497 @@
+in_azure_graph_security_alerts:
+  type: collection
+  ttl: 4h
+  ignoreGroupJobsLimit: false
+  removeFields: []
+  resumeOnBoot: false
+  schedule:
+    cronSchedule: "*/5 * * * *"
+    maxConcurrentRuns: 1
+    skippable: true
+    run:
+      rescheduleDroppedTasks: true
+      maxTaskReschedule: 1
+      logLevel: info
+      jobTimeout: 60m
+      mode: run
+      timeRangeType: relative
+      timeWarning: {}
+      expression: "true"
+      minTaskSize: 1MB
+      maxTaskSize: 10MB
+      stateTracking:
+        stateUpdateExpression: "__timestampExtracted !== false && {latestTime:
+          (state.latestTime || 0) > _time ? state.latestTime : _time}"
+        stateMergeExpression: "(prevState.latestTime || 0) > newState.latestTime ?
+          prevState : newState"
+        enabled: true
+    enabled: false
+  streamtags: []
+  workerAffinity: false
+  collector:
+    conf:
+      discovery:
+        discoverType: none
+      collectMethod: get
+      pagination:
+        type: response_header_link
+        nextRelationAttribute: "@odata.nextLink"
+        maxPages: 0
+      authentication: login
+      timeout: 0
+      useRoundRobinDns: false
+      disableTimeFilter: false
+      decodeUrl: true
+      rejectUnauthorized: false
+      captureHeaders: false
+      safeHeaders: []
+      retryRules:
+        type: backoff
+        interval: 1000
+        limit: 5
+        multiplier: 2
+        maxIntervalMs: 20000
+        codes:
+          - 429
+          - 503
+        enableHeader: true
+        retryConnectTimeout: false
+        retryConnectReset: false
+        retryHeaderName: retry-after
+      __scheduling:
+        stateTracking: {}
+      loginUrl: "'https://login.microsoftonline.com/432739cb-8e35-44eb-95d1-2d31400c5\
+        99b/oauth2/v2.0/token'"
+      loginBody: "`client_secret=${password}&scope=https://graph.microsoft.com/.defau\
+        lt&client_id=${username}&grant_type=client_credentials`"
+      authHeaderKey: Authorization
+      authHeaderExpr: "`Bearer ${token}`"
+      tokenRespAttribute: access_token
+      collectUrl: "'https://graph.microsoft.com/v1.0/security/alerts'"
+      collectRequestParams:
+        - name: filter
+          value: "`createdDateTime+ge+'${earliest ?
+            C.Time.strftime(earliest,'%Y-%m-%dT%H:%M:%S.%fZ') :
+            C.Time.strftime(Date.now()/1000 -
+            5*60,'%Y-%m-%dT%H:%M:%S.%fZ')}'+and+createdDateTime+le+'${earliest ?
+            C.Time.strftime(earliest,'%Y-%m-%dT%H:%M:%S.%fZ') :
+            C.Time.strftime(Date.now()/1000,'%Y-%m-%dT%H:%M:%S.%fZ')}`"
+      collectRequestHeaders:
+        - name: content-type
+          value: changeme
+      username: changeme
+      password: changeme
+    destructive: false
+    type: rest
+  input:
+    type: collection
+    staleChannelFlushMs: 10000
+    sendToRoutes: true
+    preprocess:
+      disabled: true
+    throttleRatePerSec: "0"
+    breakerRulesets:
+      - Azure Graph API Ruleset
+    metadata:
+      - name: __packsource
+        value: "'cribl-microsoft-graph-rest-io.microsoft-graph-security-alerts'"
+  savedState: {}
+  notifications: []
+in_azure_graph_devices:
+  type: collection
+  ttl: 4h
+  ignoreGroupJobsLimit: false
+  removeFields: []
+  resumeOnBoot: false
+  schedule:
+    cronSchedule: 3 11 * * *
+    maxConcurrentRuns: 1
+    skippable: true
+    run:
+      rescheduleDroppedTasks: true
+      maxTaskReschedule: 1
+      logLevel: info
+      jobTimeout: 60m
+      mode: run
+      timeRangeType: relative
+      timeWarning: {}
+      expression: "true"
+      minTaskSize: 1MB
+      maxTaskSize: 10MB
+      stateTracking: {}
+    enabled: false
+  streamtags: []
+  workerAffinity: false
+  collector:
+    conf:
+      discovery:
+        discoverType: none
+      collectMethod: get
+      pagination:
+        type: response_header_link
+        nextRelationAttribute: "@odata.nextLink"
+        maxPages: 0
+      authentication: login
+      timeout: 0
+      useRoundRobinDns: false
+      disableTimeFilter: false
+      decodeUrl: true
+      rejectUnauthorized: false
+      captureHeaders: false
+      safeHeaders: []
+      retryRules:
+        type: backoff
+        interval: 1000
+        limit: 5
+        multiplier: 2
+        maxIntervalMs: 20000
+        codes:
+          - 429
+          - 503
+        enableHeader: true
+        retryConnectTimeout: false
+        retryConnectReset: false
+        retryHeaderName: retry-after
+      __scheduling:
+        stateTracking: {}
+      loginUrl: "'https://login.microsoftonline.com/432739cb-8e35-44eb-95d1-2d31400c5\
+        99b/oauth2/v2.0/token'"
+      loginBody: "`client_secret=${password}&scope=https://graph.microsoft.com/.defau\
+        lt&client_id=${username}&grant_type=client_credentials`"
+      authHeaderKey: Authorization
+      authHeaderExpr: "`Bearer ${token}`"
+      tokenRespAttribute: access_token
+      collectUrl: "'https://graph.microsoft.com/v1.0/devices'"
+      collectRequestParams: []
+      collectRequestHeaders:
+        - name: content-type
+          value: changeme
+      username: changeme
+      password: changeme
+    destructive: false
+    type: rest
+  input:
+    type: collection
+    staleChannelFlushMs: 10000
+    sendToRoutes: true
+    preprocess:
+      disabled: true
+    throttleRatePerSec: "0"
+    breakerRulesets:
+      - Azure Graph API Ruleset
+    metadata:
+      - name: __packsource
+        value: "'cribl-microsoft-graph-rest-io.microsoft-graph-devices'"
+  savedState: {}
+  notifications: []
+in_azure_graph_users:
+  type: collection
+  ttl: 4h
+  ignoreGroupJobsLimit: false
+  removeFields: []
+  resumeOnBoot: false
+  schedule:
+    cronSchedule: 0 11 * * *
+    maxConcurrentRuns: 1
+    skippable: true
+    run:
+      rescheduleDroppedTasks: true
+      maxTaskReschedule: 1
+      logLevel: info
+      jobTimeout: 60m
+      mode: run
+      timeRangeType: relative
+      timeWarning: {}
+      expression: "true"
+      minTaskSize: 1MB
+      maxTaskSize: 10MB
+      stateTracking: {}
+    enabled: false
+  streamtags: []
+  workerAffinity: false
+  collector:
+    conf:
+      discovery:
+        discoverType: http
+        discoverMethod: get
+        pagination:
+          type: response_body
+          maxPages: 0
+          attribute:
+            - "@odata.nextLink"
+        enableStrictDiscoverParsing: false
+        enableDiscoverCode: false
+        discoverUrl: "`https://graph.microsoft.com/v1.0/users?$select=id`"
+        discoverRequestHeaders:
+          - name: content-type
+            value: changeme
+        discoverDataField: value
+      collectMethod: get
+      pagination:
+        type: none
+      authentication: login
+      timeout: 0
+      useRoundRobinDns: false
+      disableTimeFilter: false
+      decodeUrl: false
+      rejectUnauthorized: true
+      captureHeaders: false
+      safeHeaders: []
+      retryRules:
+        type: backoff
+        interval: 1000
+        limit: 5
+        multiplier: 2
+        maxIntervalMs: 20000
+        codes:
+          - 429
+          - 503
+        enableHeader: true
+        retryConnectTimeout: false
+        retryConnectReset: false
+        retryHeaderName: retry-after
+      __scheduling:
+        stateTracking: {}
+      loginUrl: "`https://login.microsoftonline.com/432739cb-8e35-44eb-95d1-2d31400c5\
+        99b/oauth2/v2.0/token`"
+      loginBody: "`client_secret=${password}&scope=https://graph.microsoft.com/.defau\
+        lt&client_id=${username}&grant_type=client_credentials`"
+      authHeaderKey: Authorization
+      authHeaderExpr: "`Bearer ${token}`"
+      collectUrl: "`https://graph.microsoft.com/v1.0/users/{${id}}`"
+      collectRequestHeaders:
+        - name: content-type
+          value: changeme
+      username: changeme
+      password: changeme
+      tokenRespAttribute: access_token
+    destructive: false
+    encoding: utf8
+    type: rest
+  input:
+    type: collection
+    staleChannelFlushMs: 10000
+    sendToRoutes: true
+    preprocess:
+      disabled: true
+    throttleRatePerSec: "0"
+    metadata:
+      - name: __packsource
+        value: "'cribl-microsoft-graph-rest-io.microsoft-graph-users'"
+    breakerRulesets:
+      - Azure Graph API Ruleset
+  savedState: {}
+  notifications: []
+in_azure_graph_signins:
+  type: collection
+  ttl: 4h
+  ignoreGroupJobsLimit: false
+  removeFields: []
+  resumeOnBoot: false
+  schedule:
+    cronSchedule: "*/5 * * * *"
+    maxConcurrentRuns: 1
+    skippable: true
+    run:
+      rescheduleDroppedTasks: true
+      maxTaskReschedule: 1
+      logLevel: info
+      jobTimeout: 60m
+      mode: run
+      timeRangeType: relative
+      timeWarning: {}
+      expression: "true"
+      minTaskSize: 1MB
+      maxTaskSize: 10MB
+      stateTracking:
+        stateUpdateExpression: "__timestampExtracted !== false && {latestTime:
+          (state.latestTime || 0) > _time ? state.latestTime : _time}"
+        stateMergeExpression: "(prevState.latestTime || 0) > newState.latestTime ?
+          prevState : newState"
+        enabled: true
+      timestampTimezone: UTC
+    enabled: false
+  streamtags: []
+  workerAffinity: false
+  collector:
+    conf:
+      discovery:
+        discoverType: none
+        itemList: []
+        discoverMethod: get
+        pagination:
+          type: response_body
+          maxPages: 0
+          nextRelationAttribute: next
+          curRelationAttribute: "@odata.nextLink"
+          attribute:
+            - "@odata.nextLink"
+        enableDiscoverCode: false
+        discoverUrl: "`https://graph.microsoft.com/v1.0/auditLogs/signIns`"
+        discoverRequestHeaders:
+          - name: content-type
+            value: changeme
+        discoverDataField: value
+      collectMethod: get
+      pagination:
+        type: response_header_link
+        nextRelationAttribute: "@odata.nextLink"
+        maxPages: 0
+        attribute:
+          - "@odata.nextLink"
+      authentication: login
+      timeout: 0
+      useRoundRobinDns: false
+      disableTimeFilter: false
+      decodeUrl: false
+      rejectUnauthorized: true
+      captureHeaders: false
+      safeHeaders: []
+      retryRules:
+        type: backoff
+        interval: 1000
+        limit: 5
+        multiplier: 2
+        maxIntervalMs: 20000
+        codes:
+          - 429
+          - 503
+        enableHeader: true
+        retryConnectTimeout: false
+        retryConnectReset: false
+        retryHeaderName: retry-after
+      __scheduling:
+        stateTracking: {}
+      loginUrl: "`https://login.microsoftonline.com/432739cb-8e35-44eb-95d1-2d31400c5\
+        99b/oauth2/v2.0/token`"
+      loginBody: "`client_secret=${password}&scope=https://graph.microsoft.com/.defau\
+        lt&client_id=${username}&grant_type=client_credentials`"
+      authHeaderKey: Authorization
+      authHeaderExpr: "`Bearer ${token}`"
+      username: changeme
+      password: changeme
+      tokenRespAttribute: access_token
+      collectUrl: "`https://graph.microsoft.com/v1.0/auditLogs/signIns?$orderby=creat\
+        edDateTime&$filter=createdDateTime+ge+`+C.Time.strftime((earliest * 1000
+        || Date.now()/1000-(5*60)),'%Y-%m-%dT%H:%M:%S.%fZ'
+        )+`+and+createdDateTime+le+`+C.Time.strftime(latest * 1000 ||
+        Date.now()/1000,'%Y-%m-%dT%H:%M:%S.%fZ' )"
+      collectRequestParams: []
+      collectRequestHeaders:
+        - name: content-type
+          value: changeme
+    destructive: false
+    encoding: utf8
+    type: rest
+  input:
+    type: collection
+    staleChannelFlushMs: 10000
+    sendToRoutes: true
+    preprocess:
+      disabled: true
+    throttleRatePerSec: "0"
+    breakerRulesets:
+      - Azure Graph API Ruleset
+    metadata:
+      - name: __packsource
+        value: "'cribl-microsoft-graph-rest-io.microsoft-graph-signins'"
+  savedState: {}
+  notifications: []
+in_azure_graph_security_alerts_v2:
+  type: collection
+  ttl: 4h
+  ignoreGroupJobsLimit: false
+  removeFields: []
+  resumeOnBoot: false
+  schedule:
+    cronSchedule: "*/5 * * * *"
+    maxConcurrentRuns: 1
+    skippable: true
+    run:
+      rescheduleDroppedTasks: true
+      maxTaskReschedule: 1
+      logLevel: info
+      jobTimeout: 60m
+      mode: run
+      timeRangeType: relative
+      timeWarning: {}
+      expression: "true"
+      minTaskSize: 1MB
+      maxTaskSize: 10MB
+      stateTracking:
+        stateUpdateExpression: "__timestampExtracted !== false && {latestTime:
+          (state.latestTime || 0) > _time ? state.latestTime : _time}"
+        stateMergeExpression: "(prevState.latestTime || 0) > newState.latestTime ?
+          prevState : newState"
+        enabled: true
+    enabled: false
+  streamtags: []
+  workerAffinity: false
+  collector:
+    conf:
+      discovery:
+        discoverType: none
+      collectMethod: get
+      pagination:
+        type: none
+      authentication: login
+      timeout: 0
+      useRoundRobinDns: false
+      disableTimeFilter: false
+      decodeUrl: false
+      rejectUnauthorized: true
+      captureHeaders: false
+      safeHeaders: []
+      retryRules:
+        type: backoff
+        interval: 1000
+        limit: 5
+        multiplier: 2
+        maxIntervalMs: 20000
+        codes:
+          - 429
+          - 503
+        enableHeader: true
+        retryConnectTimeout: false
+        retryConnectReset: false
+        retryHeaderName: retry-after
+      __scheduling:
+        stateTracking: {}
+      loginUrl: "'https://login.microsoftonline.com/432739cb-8e35-44eb-95d1-2d31400c5\
+        99b/oauth2/v2.0/token'"
+      loginBody: "`client_secret=${password}&scope=https://graph.microsoft.com/.defau\
+        lt&client_id=${username}&grant_type=client_credentials`"
+      authHeaderKey: Authorization
+      authHeaderExpr: "`Bearer ${token}`"
+      collectUrl: "'https://graph.microsoft.com/v1.0/security/alerts_v2'"
+      collectRequestHeaders:
+        - name: content-type
+          value: changeme
+      username: changeme
+      password: changeme
+      tokenRespAttribute: access_token
+      collectRequestParams:
+        - name: filter
+          value: "`createdDateTime+ge+${earliest ?
+            C.Time.strftime(earliest,'%Y-%m-%dT%H:%M:%S.%fZ') :
+            C.Time.strftime(Date.now()/1000 -
+            60*60*5*1000,'%Y-%m-%dT%H:%M:%S.%fZ')}+and+createdDateTime+le+${ear\
+            liest ? C.Time.strftime(earliest,'%Y-%m-%dT%H:%M:%S.%fZ') :
+            C.Time.strftime(Date.now()/1000,'%Y-%m-%dT%H:%M:%S.%fZ')}`"
+    destructive: false
+    encoding: utf8
+    type: rest
+  input:
+    type: collection
+    staleChannelFlushMs: 10000
+    sendToRoutes: true
+    preprocess:
+      disabled: true
+    throttleRatePerSec: "0"
+    breakerRulesets:
+      - Azure Graph API Ruleset
+    metadata:
+      - name: __packsource
+        value: "'cribl-microsoft-graph-rest-io.microsoft-graph-security-alerts-v2'"
+  savedState: {}
+  notifications: []
